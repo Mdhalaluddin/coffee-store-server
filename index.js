@@ -12,10 +12,11 @@ app.use(express.json());
 
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gjzbg5x.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gjzbg5x.mongodb.net/?retryWrites=true&w=majority`;
+// console.log(uri);
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gjzbg5x.mongodb.net`
+
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -30,6 +31,7 @@ async function run() {
         await client.connect();
 
         const coffeeCollection = client.db('coffeeDB').collection('coffee');
+        const userCollection = client.db('coffeeDB').collection('coffee');
 
         app.get('/coffee', async (req, res) => {
             const cursor = coffeeCollection.find();
@@ -50,8 +52,20 @@ async function run() {
             const result = await coffeeCollection.insertOne(newCoffee);
             res.send(result);
         })
+        //user section
+        app.post('/user', async(req, res)=>{
+            const newUser = req.body;
+            console.log(newUser);
+            const result = await userCollection.insertOne(newUser);
+            res.send(result);
+        }) 
+        app.get("/user", async(req, res)=>{
+            const cursor = userCollection.find();
+            const result = await cursor.toArray();
+            res.send(result)
+        })
         // update work-2
-        app.put('coffee/:id', async (req, res) => {
+        app.put('/coffee/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
             const options = { upsert: true };
